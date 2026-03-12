@@ -83,8 +83,8 @@ class EdgeProcessor:
             obs = np.array(fp.state_history[-10:]).reshape(-1, 1)  # simple: just RSSI
             predicted_next = self.intent_predictor.predict_next_state(obs)
 
-        # 4. Session continuity
-        logical_device = self.session_manager.link(fp, predicted_next, adv)
+        # 4. Session continuity - pass the fingerprints dictionary
+        logical_device = self.session_manager.link(fp, predicted_next, adv, self.fingerprints)
 
         return {
             'key': key,
@@ -99,16 +99,15 @@ class SessionManager:
         self.logical_devices = {}  # logical_id -> set of keys
         self.key_to_logical = {}   # key -> logical_id
 
-    def link(self, fingerprint, prediction, adv):
+    def link(self, fingerprint, prediction, adv, fingerprints):
         # Try to find existing logical device that this fingerprint might belong to
         best_match = None
         best_sim = 0
         for lid, keys in self.logical_devices.items():
-            # For each key in that logical device, get its fingerprint
+            # For each key in that logical device, get its fingerprint from the passed dict
             for k in keys:
-                if k in edge_processor.fingerprints:  # need access to edge_processor? This is messy.
-                    # Simplified: compare feature similarity
-                    other_fp = edge_processor.fingerprints[k]
+                if k in fingerprints:
+                    other_fp = fingerprints[k]
                     sim = compute_similarity(fingerprint, other_fp)
                     if sim > best_sim:
                         best_sim = sim
