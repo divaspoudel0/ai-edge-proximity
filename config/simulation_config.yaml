@@ -2,10 +2,10 @@
 # Simulation parameters
 area_width: 100
 area_height: 100
-num_static_beacons: 10
-num_mobile_devices: 5
-num_rogue_devices: 20            # total rogue events
-simulation_duration_hours: 10
+num_static_beacons: 3
+num_mobile_devices: 2
+num_rogue_devices: 5            # total rogue events
+simulation_duration_hours: 0.5
 advertisement_interval_mean: 0.5  # seconds
 advertisement_interval_std: 0.1
 
