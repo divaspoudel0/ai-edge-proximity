@@ -1,4 +1,3 @@
-%%writefile config/simulation_config.yaml
 # Simulation parameters
 area_width: 100
 area_height: 100
