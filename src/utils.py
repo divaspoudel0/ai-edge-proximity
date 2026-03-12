@@ -15,9 +15,7 @@ def rssi_from_distance(d, P0=-59, n=2.0):
     return P0 - 10 * n * np.log10(d)
 
 def compute_similarity(fp1, fp2):
-    """Cosine similarity between feature vectors (example)."""
-    # Features: [mean_rssi, rssi_std, movement_speed, ...]
-    # Normalize first.
+    """Cosine similarity between feature vectors."""
     v1 = np.array(fp1.get_features())
     v2 = np.array(fp2.get_features())
     norm1 = np.linalg.norm(v1)
