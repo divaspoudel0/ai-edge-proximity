@@ -12,7 +12,7 @@ def main():
     os.makedirs(config['results_dir'], exist_ok=True)
     os.makedirs('data', exist_ok=True)
 
-    # 1. Generate beacon stream (or load if exists)
+    # -------------------- Step 1: Beacon stream --------------------
     beacon_file = config['log_file']
     if os.path.exists(beacon_file):
         print(f"Loading existing beacon stream from {beacon_file}")
@@ -25,25 +25,47 @@ def main():
         df.to_csv(beacon_file, index=False)
         print(f"Saved {len(df)} advertisements to {beacon_file}")
 
-    # 2. Initialize edge processor and train anomaly detector on normal data
-    normal_data = df[~df['is_rogue']].sample(frac=0.1)  # sample 10% of normal for training
-    features = []  # (unused)
+    # -------------------- Step 2: Train anomaly detector --------------------
+    normal_data = df[~df['is_rogue']].sample(frac=0.1)  # 10% of normal data
     X_train = normal_data[['rssi']].values
     edge = EdgeProcessor(config)
     edge.anomaly_detector.train(X_train)
 
-    # 3. Process each advertisement in chronological order
+    # -------------------- Step 3: Process advertisements with checkpointing --------------------
     print("Processing advertisements at edge...")
     df_sorted = df.sort_values('timestamp')
+
+    # Checkpoint file
+    checkpoint_interval = 10000  # save every 10,000 ads
+    partial_file = os.path.join(config['results_dir'], 'partial_results.csv')
+
     results = []
-    for idx, row in df_sorted.iterrows():
+    start_idx = 0
+
+    # If a partial results file exists, load it and skip already processed rows
+    if os.path.exists(partial_file):
+        print(f"Found partial results file. Loading {partial_file} ...")
+        existing = pd.read_csv(partial_file)
+        results = existing.to_dict('records')
+        start_idx = len(results)
+        print(f"Resuming from advertisement index {start_idx} (out of {len(df_sorted)})")
+
+    # Processing loop
+    for idx, row in df_sorted.iloc[start_idx:].iterrows():
         adv = row.to_dict()
         out = edge.process_advertisement(adv)
         results.append(out)
 
-    # 4. Evaluate anomaly detection
+        # Save checkpoint periodically
+        if (len(results) % checkpoint_interval) == 0:
+            pd.DataFrame(results).to_csv(partial_file, index=False)
+            print(f"Checkpoint saved at {len(results)} advertisements")
+
+    # -------------------- Step 4: Final evaluation and cleanup --------------------
+    # Add predictions to the original dataframe
     df['pred_anomaly'] = [r['anomaly'] for r in results]
     df['true_anomaly'] = df['is_rogue']
+
     y_true = df['true_anomaly'].astype(int)
     y_pred = df['pred_anomaly'].astype(int)
     precision = precision_score(y_true, y_pred)
@@ -51,11 +73,18 @@ def main():
     f1 = f1_score(y_true, y_pred)
     print(f"Anomaly Detection: Precision={precision:.3f}, Recall={recall:.3f}, F1={f1:.3f}")
 
-    # 5. Evaluate session continuity (placeholder)
+    # Placeholder for session continuity evaluation
     print("Session continuity evaluation placeholder.")
 
-    # 6. Save results
-    df.to_csv(os.path.join(config['results_dir'], 'processed_results.csv'), index=False)
+    # Save full results
+    final_file = os.path.join(config['results_dir'], 'processed_results.csv')
+    df.to_csv(final_file, index=False)
+    print(f"Full results saved to {final_file}")
+
+    # Remove partial checkpoint file if it exists
+    if os.path.exists(partial_file):
+        os.remove(partial_file)
+        print("Partial checkpoint file removed.")
 
 if __name__ == "__main__":
     main()
