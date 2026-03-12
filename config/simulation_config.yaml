@@ -1,10 +1,10 @@
-%%writefile /content/ai-edge-proximity/ai-edge-proximity/ai-edge-proximity/config/simulation_config.yaml
+%%writefile config/simulation_config.yaml
 area_width: 100
 area_height: 100
-num_static_beacons: 3
-num_mobile_devices: 2
-num_rogue_devices: 5
-simulation_duration_hours: 0.5
+num_static_beacons: 10
+num_mobile_devices: 5
+num_rogue_devices: 20
+simulation_duration_hours: 10
 advertisement_interval_mean: 0.5
 advertisement_interval_std: 0.1
 mac_rotation_min: 120
