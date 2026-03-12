@@ -1,8 +1,6 @@
 # AI-Augmented Edge Intelligence for Proximity Services
 
-This repository contains the complete simulation code for the research paper:
-
-> **"AI-Augmented Edge Intelligence for Predictive Proximity Services Using Rotating Identifiers"**
+This repository contains the complete simulation code for AI-Augmented Edge Intelligence for Predictive Proximity Services Using Rotating Identifiers:
 
 ## Overview
 
