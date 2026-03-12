@@ -1,0 +1,32 @@
+# Simulation parameters
+area_width: 100
+area_height: 100
+num_static_beacons: 10
+num_mobile_devices: 5
+num_rogue_devices: 20            # total rogue events
+simulation_duration_hours: 10
+advertisement_interval_mean: 0.5  # seconds
+advertisement_interval_std: 0.1
+
+# Rotation intervals (seconds)
+mac_rotation_min: 120
+mac_rotation_max: 300
+uid_rotation_min: 60
+uid_rotation_max: 180
+
+# Mobility
+static_beacon_positions: []       # will be generated randomly if empty
+mobile_path_type: "random_waypoint" # or "predefined"
+
+# Anomaly injection
+anomaly_duration_minutes: 5
+rogue_behavior: ["spoof_uid", "erratic_timing", "replay"]
+
+# Edge processing
+anomaly_contamination: 0.1         # expected fraction of anomalies
+hmm_n_states: 6                     # number of zones
+similarity_threshold: 0.8           # for session merging
+
+# Output
+log_file: "data/beacon_stream.csv"
+results_dir: "results/"
